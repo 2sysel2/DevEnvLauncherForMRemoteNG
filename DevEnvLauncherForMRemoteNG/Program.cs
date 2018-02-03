@@ -10,48 +10,57 @@ namespace DevEnvLauncherForMRemoteNG
 {
     class Program
     {
-        private static readonly string CONFIGURATION_FILE = "configurations.json";
+        private static readonly string CONFIGURATION_FILE = "dev_env_configurations.json";
 
         static void Main(string[] args)
         {
-            if(!File.Exists(CONFIGURATION_FILE))
+            if (!File.Exists(CONFIGURATION_FILE))
             {
                 createSampleConfig();
                 return;
             }
 
+            List<string> configurationsToLaunch = new List<string>();
+
+            if(args.Length == 0)
+            {
+                Console.WriteLine("No Configuration Name Passed");
+            }
+            else
+            {
+                configurationsToLaunch.AddRange(args);
+                foreach (string arg in args)
+                {
+                    Console.WriteLine("Configuration to launch [{0}]", arg);
+                }
+            }            
+
             IList<DevelopmentEnviorement> enviorements = JsonConvert.DeserializeObject <List<DevelopmentEnviorement>>(File.ReadAllText(CONFIGURATION_FILE));
 
-            bool failureDetected = false;
             foreach(DevelopmentEnviorement enviorement in enviorements)
             {
-                if (!enviorement.IsEnviorement("Clarks"))
+                if (configurationsToLaunch.Contains(enviorement.Name))
                 {
-                    if (!enviorement.Start())
-                    {
-                        failureDetected = true;
-                    }
+                    enviorement.Start();
                 }
             }
 
-            if (failureDetected)
-            {
-                Console.ReadLine();
-            }
+            Console.ReadLine();
+            
         }
 
         static void createSampleConfig()
         {
+            Console.WriteLine("Creating sample config [{0}]",CONFIGURATION_FILE);
             File.Create(CONFIGURATION_FILE).Close();
 
-            Executable testExecutable = new Executable("C:\\path\\to\\executable", "params");
             List<DevelopmentEnviorement> enviorements = new List<DevelopmentEnviorement>();
             DevelopmentEnviorement se1 = new DevelopmentEnviorement("sampleConfig1");
-            se1.Configurations.Add(testExecutable);
-            se1.Configurations.Add(testExecutable);
-            DevelopmentEnviorement se2 = new DevelopmentEnviorement("sampleConfig1");
-            se2.Configurations.Add(testExecutable);
-            se2.Configurations.Add(testExecutable);
+            se1.Configurations.Add(new Executable("C:\\path\\to\\executable1", "params"));
+            se1.Configurations.Add(new Executable("C:\\path\\to\\executable2", "params"));
+            DevelopmentEnviorement se2 = new DevelopmentEnviorement("sampleConfig2");
+            se2.Configurations.Add(new Executable("C:\\path\\to\\executable3", "params"));
+            se2.Configurations.Add(new Executable("C:\\path\\to\\executable4", "params"));
 
             enviorements.Add(se1);
             enviorements.Add(se2);
@@ -59,6 +68,7 @@ namespace DevEnvLauncherForMRemoteNG
 
 
             File.WriteAllText(CONFIGURATION_FILE,JsonConvert.SerializeObject(enviorements, Formatting.Indented));
+            Console.ReadLine();
         }
     }
 }

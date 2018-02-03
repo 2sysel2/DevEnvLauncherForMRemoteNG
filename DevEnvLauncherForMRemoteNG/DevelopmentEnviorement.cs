@@ -17,11 +17,6 @@ namespace DevEnvLauncherForMRemoteNG
             Configurations = new List<Executable>();
         }
 
-        public bool IsEnviorement(string name)
-        {
-            return Name.Equals(name);
-        }
-
         public bool Start()
         {
             bool failureDetected = false;
