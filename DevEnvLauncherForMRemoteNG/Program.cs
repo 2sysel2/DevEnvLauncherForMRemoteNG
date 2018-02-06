@@ -33,10 +33,21 @@ namespace DevEnvLauncherForMRemoteNG
                 {
                     Console.WriteLine("Configuration to launch [{0}]", arg);
                 }
-            }            
+            }
 
-            IList<DevelopmentEnviorement> enviorements = JsonConvert.DeserializeObject <List<DevelopmentEnviorement>>(File.ReadAllText(CONFIGURATION_FILE));
-
+            IList<DevelopmentEnviorement> enviorements = new List<DevelopmentEnviorement>();
+            try
+            {
+                string json = File.ReadAllText(CONFIGURATION_FILE);
+                foreach(DevelopmentEnviorement de in JsonConvert.DeserializeObject<List<DevelopmentEnviorement>>(json))
+                {
+                    enviorements.Add(de);
+                }
+            }catch (JsonReaderException e)
+            {
+                Console.WriteLine("JSON configuration is not valid.");
+                Console.WriteLine(e.Message);
+            }
             foreach(DevelopmentEnviorement enviorement in enviorements)
             {
                 if (configurationsToLaunch.Contains(enviorement.Name))
