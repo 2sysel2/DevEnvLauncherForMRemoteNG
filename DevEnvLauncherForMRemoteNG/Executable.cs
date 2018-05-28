@@ -9,14 +9,16 @@ namespace DevEnvLauncherForMRemoteNG
 {
     class Executable
     {
-        public Executable(string path,string arguments)
+        public Executable(string path,string arguments,bool debug)
         {
             Path = path;
             Arguments = arguments;
+            Debug = debug;
         }
 
         public string Path { get; set; }
         public string Arguments { get; set; }
+        public bool? Debug { get; set; }
 
         public bool execute()
         {

@@ -17,17 +17,23 @@ namespace DevEnvLauncherForMRemoteNG
             Configurations = new List<Executable>();
         }
 
-        public bool Start()
+        public StartResultDto Start()
         {
-            bool failureDetected = false;
+            StartResultDto result = new StartResultDto();
+
             foreach (Executable executable in Configurations)
             {
                 if (!executable.execute())
                 {
-                    failureDetected = true;
+                    result.failedExecutables.Add(executable);
+                }
+
+                if (executable.Debug.GetValueOrDefault(false))
+                {
+                    result.debugExecutables.Add(executable);
                 }
             }
-            return !failureDetected;
+            return result;
         }
     }
 }

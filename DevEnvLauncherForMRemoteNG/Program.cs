@@ -22,7 +22,7 @@ namespace DevEnvLauncherForMRemoteNG
 
             List<string> configurationsToLaunch = new List<string>();
 
-            if(args.Length == 0)
+            if (args.Length == 0)
             {
                 Console.WriteLine("No Configuration Name Passed");
             }
@@ -39,24 +39,38 @@ namespace DevEnvLauncherForMRemoteNG
             try
             {
                 string json = File.ReadAllText(CONFIGURATION_FILE);
-                foreach(DevelopmentEnviorement de in JsonConvert.DeserializeObject<List<DevelopmentEnviorement>>(json))
+                foreach (DevelopmentEnviorement de in JsonConvert.DeserializeObject<List<DevelopmentEnviorement>>(json))
                 {
                     enviorements.Add(de);
                 }
-            }catch (JsonReaderException e)
+            }
+            catch (JsonReaderException e)
             {
                 Console.WriteLine("JSON configuration is not valid.");
                 Console.WriteLine(e.Message);
             }
-            foreach(DevelopmentEnviorement enviorement in enviorements)
+            IList<StartResultDto> results = new List<StartResultDto>();
+            foreach (DevelopmentEnviorement enviorement in enviorements)
             {
                 if (configurationsToLaunch.Contains(enviorement.Name))
                 {
-                    enviorement.Start();
+                    results.Add(enviorement.Start());
+                }
+            }
+            bool waitForUserInput = false;
+
+            foreach (StartResultDto result in results)
+            {
+                if (result.debugExecutables.Count > 0 || result.failedExecutables.Count > 0)
+                {
+                    waitForUserInput = true;
                 }
             }
 
-            Console.ReadLine();
+
+            if (waitForUserInput) {
+                Console.ReadLine();
+            }
             
         }
 
@@ -67,11 +81,11 @@ namespace DevEnvLauncherForMRemoteNG
 
             List<DevelopmentEnviorement> enviorements = new List<DevelopmentEnviorement>();
             DevelopmentEnviorement se1 = new DevelopmentEnviorement("sampleConfig1");
-            se1.Configurations.Add(new Executable("C:\\path\\to\\executable1", "params"));
-            se1.Configurations.Add(new Executable("C:\\path\\to\\executable2", "params"));
+            se1.Configurations.Add(new Executable("C:\\path\\to\\executable1", "params",false));
+            se1.Configurations.Add(new Executable("C:\\path\\to\\executable2", "params",false));
             DevelopmentEnviorement se2 = new DevelopmentEnviorement("sampleConfig2");
-            se2.Configurations.Add(new Executable("C:\\path\\to\\executable3", "params"));
-            se2.Configurations.Add(new Executable("C:\\path\\to\\executable4", "params"));
+            se2.Configurations.Add(new Executable("C:\\path\\to\\executable3", "params",false));
+            se2.Configurations.Add(new Executable("C:\\path\\to\\executable4", "params",false));
 
             enviorements.Add(se1);
             enviorements.Add(se2);
